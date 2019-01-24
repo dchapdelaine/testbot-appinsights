@@ -1,0 +1,16 @@
+{
+    "name": "dchTestBot",
+    "description": "",
+    "services": [
+        {
+            "type": "endpoint",
+            "appId": "",
+            "appPassword": "",
+            "endpoint": "http://localhost:3978/api/messages",
+            "id": "9f9e7720-1ff2-11e9-9b91-e998ade210cc",
+            "name": "http://localhost:3978/api/messages"
+        }
+    ],
+    "padlock": "",
+    "version": "2.0"
+}

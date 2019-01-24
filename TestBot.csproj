@@ -1,0 +1,33 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.2</TargetFramework>
+    <ApplicationInsightsResourceId>/subscriptions/40ae288a-dac8-43ad-a259-2cb186511ac8/resourcegroups/dchTestBot/providers/microsoft.insights/components/dchTestBot</ApplicationInsightsResourceId>
+    <ApplicationInsightsAnnotationResourceId>/subscriptions/40ae288a-dac8-43ad-a259-2cb186511ac8/resourcegroups/dchTestBot/providers/microsoft.insights/components/dchTestBot</ApplicationInsightsAnnotationResourceId>
+    <UserSecretsId>5b757f34-7255-4741-87da-11188cb89e43</UserSecretsId>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="Migrations\20190124145140_InitialCreate.cs" />
+    <Compile Remove="Migrations\20190124145140_InitialCreate.Designer.cs" />
+    <Compile Remove="Migrations\20190124150850_InitialCreat.cs" />
+    <Compile Remove="Migrations\20190124150850_InitialCreat.Designer.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.1.1" />
+    <PackageReference Include="Microsoft.AspNetCore" Version="2.2.0" />
+    <PackageReference Include="Microsoft.AspNetCore.All" Version="2.2.1" />
+    <PackageReference Include="Microsoft.Bot.Builder" Version="4.2.0" />
+    <PackageReference Include="Microsoft.Bot.Builder.Integration.AspNet.Core" Version="4.2.0" />
+    <PackageReference Include="Microsoft.Bot.Configuration" Version="4.2.0" />
+    <PackageReference Include="Microsoft.Bot.Connector" Version="4.2.0" />
+    <PackageReference Include="Microsoft.Bot.Schema" Version="4.2.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="2.2.1" />
+    <PackageReference Include="Microsoft.Extensions.Logging.AzureAppServices" Version="2.2.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <WCFMetadata Include="Connected Services" />
+  </ItemGroup>
+</Project>
