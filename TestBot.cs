@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.ApplicationInsights;
 using Microsoft.Bot.Builder;
 using Microsoft.Bot.Schema;
 using Microsoft.EntityFrameworkCore;
@@ -30,6 +31,7 @@ namespace dchTestBot
         private readonly MessageContext _context;
         private readonly ILogger _logger;
         private readonly Random _random = new Random();
+        private readonly TelemetryClient _telemetry = new TelemetryClient();
 
         /// <summary>
         /// Initializes a new instance of the class.
@@ -68,58 +70,69 @@ namespace dchTestBot
             // Handle Message activity type, which is the main activity type for shown within a conversational interface
             // Message activities may contain text, speech, interactive cards, and binary or unknown attachments.
             // see https://aka.ms/about-bot-activity-message to learn more about the message and other activity types
-            if (turnContext.Activity.Type == ActivityTypes.Message)
+            try
             {
-                var receivedMessage = turnContext.Activity.Text;
-                var message = string.Empty;
-                if (receivedMessage == "error")
+                if (turnContext.Activity.Type == ActivityTypes.Message)
                 {
-                    ThrowingMethod();
-                }
-                else if (receivedMessage == "slow")
-                {
-                    var delay = await SlowMethod();
-                    message = $"That was slow... {delay}ms";
-                }
-                else if (receivedMessage.StartsWith("save "))
-                {
-                    var subString = receivedMessage.Substring(5);
-                    await SavetoDB(subString);
-                    message = $"Saved {subString} to the DB";
-                }
-                else if (receivedMessage.StartsWith("load"))
-                {
-                    var loadedMessages = await LoadFromDB();
-                    message = "Loaded these messages from the DB:\n";
-                    foreach(var loadedMessage in loadedMessages)
+                    var receivedMessage = turnContext.Activity.Text;
+                    TrackMessage(turnContext);
+
+                    var message = string.Empty;
+                    if (receivedMessage == "error")
                     {
-                        message += loadedMessage + "\n";
+                        ThrowingMethod();
                     }
+                    else if (receivedMessage == "slow")
+                    {
+                        var delay = await SlowMethod();
+                        message = $"That was slow... {delay}ms";
+                    }
+                    else if (receivedMessage.StartsWith("save "))
+                    {
+                        var subString = receivedMessage.Substring(5);
+                        await SavetoDB(subString);
+                        message = $"Saved {subString} to the DB";
+                    }
+                    else if (receivedMessage.StartsWith("load"))
+                    {
+                        var loadedMessages = await LoadFromDB();
+                        message = "Loaded these messages from the DB:\n";
+                        foreach (var loadedMessage in loadedMessages)
+                        {
+                            message += loadedMessage + "\n";
+                        }
+                    }
+                    else
+                    {
+                        message = $"You sent '{receivedMessage}'";
+                    }
+
+                    // Echo back to the user whatever they typed.
+                    await turnContext.SendActivityAsync(message);
                 }
                 else
                 {
-                    message = $"You sent '{receivedMessage}'";
+                    await turnContext.SendActivityAsync($"{turnContext.Activity.Type} event detected");
                 }
-
-                // Get the conversation state from the turn context.
-                var state = await _accessors.CounterState.GetAsync(turnContext, () => new CounterState());
-
-                // Bump the turn count for this conversation.
-                state.TurnCount++;
-
-                // Set the property using the accessor.
-                await _accessors.CounterState.SetAsync(turnContext, state);
-
-                // Save the new turn count into the conversation state.
-                await _accessors.ConversationState.SaveChangesAsync(turnContext);
-
-                // Echo back to the user whatever they typed.
-                var responseMessage = $"Turn {state.TurnCount}: {message}\n";
-                await turnContext.SendActivityAsync(responseMessage);
             }
-            else
+            catch (Exception ex)
             {
-                await turnContext.SendActivityAsync($"{turnContext.Activity.Type} event detected");
+                _telemetry.TrackException(ex);
+                throw;
+            }
+        }
+
+        private void TrackMessage(ITurnContext turnContext)
+        {
+            if (string.Empty != turnContext.Activity.Text)
+            {
+                var properties = new Dictionary<string, string> { { "BotQuestion", turnContext.Activity.Text } };
+                if (turnContext.Activity.From != null)
+                {
+                    properties.Add("Name", turnContext.Activity.From.Name);
+                    properties.Add("Channel", turnContext.Activity.ChannelId);
+                }
+                _telemetry.TrackEvent("BotQuestion", properties);
             }
         }
 

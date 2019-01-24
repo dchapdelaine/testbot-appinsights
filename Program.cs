@@ -31,7 +31,7 @@ namespace dchTestBot
                 // Logging Options.
                 // Consider using Application Insights for your logging and metrics needs.
                 // https://azure.microsoft.com/en-us/services/application-insights/
-                // .UseApplicationInsights()
+                .UseApplicationInsights()
                 .UseStartup<Startup>()
                 .Build();
     }
