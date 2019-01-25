@@ -131,6 +131,7 @@ namespace dchTestBot
                 {
                     properties.Add("Name", turnContext.Activity.From.Name);
                     properties.Add("Channel", turnContext.Activity.ChannelId);
+                    properties.Add("ConversationId", turnContext.Activity.Conversation.Id);
                 }
                 _telemetry.TrackEvent("BotQuestion", properties);
             }
